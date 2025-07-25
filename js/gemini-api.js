@@ -12,16 +12,32 @@ class GeminiAPI {
         // Try to get API key from various sources
         // 1. From window object (set by build process)
         // 2. From meta tag (set by build process)
-        // 3. Fallback to placeholder for development
+        // 3. From Netlify environment variables (if available)
+        // 4. Fallback to placeholder for development
         
         this.apiKey = window.VITE_GEMINI_API_KEY || 
                      window.REACT_APP_GEMINI_API_KEY ||
                      this.getMetaContent('gemini-api-key') ||
+                     this.getNetlifyEnvVar() ||
                      'YOUR_GEMINI_API_KEY_HERE';
         
         if (this.apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
             console.warn('Gemini API key not configured. Please set VITE_GEMINI_API_KEY environment variable in Netlify.');
+            console.log('For demo purposes, using mock data instead of real API calls.');
+        } else {
+            console.log('✅ Gemini API key configured successfully');
         }
+    }
+
+    // Try to get environment variable from Netlify context
+    getNetlifyEnvVar() {
+        // Check if we're on Netlify and try to access environment variables
+        if (window.location.hostname.includes('netlify.app') || window.location.hostname.includes('netlify.com')) {
+            // In a real Netlify deployment, environment variables would be injected at build time
+            // For now, return null to use mock data
+            return null;
+        }
+        return null;
     }
 
     // Helper method to get content from meta tags
@@ -310,7 +326,7 @@ Please respond in the following JSON format:
     }
 
     getMockDishAnalysis(dishName) {
-        // Predefined profiles for common dishes
+        // Predefined profiles for common dishes (English and Japanese)
         const dishProfiles = {
             'pad thai': [70, 80, 85, 90, 75],
             'carbonara': [20, 70, 10, 40, 90],
@@ -319,32 +335,118 @@ Please respond in the following JSON format:
             'pizza': [40, 75, 30, 60, 80],
             'curry': [85, 90, 40, 50, 95],
             'salad': [20, 60, 70, 95, 30],
-            'steak': [30, 70, 10, 40, 95]
+            'steak': [30, 70, 10, 40, 95],
+            // Japanese dishes
+            'ラーメン': [60, 80, 30, 50, 90],
+            'ramen': [60, 80, 30, 50, 90],
+            'カレー': [85, 90, 40, 50, 95],
+            'シチュー': [30, 70, 20, 40, 85],
+            'stew': [30, 70, 20, 40, 85],
+            'ホワイトシチュー': [20, 60, 15, 45, 80],
+            'white stew': [20, 60, 15, 45, 80],
+            '鶏肉': [40, 70, 25, 60, 75],
+            'chicken': [40, 70, 25, 60, 75],
+            'パスタ': [35, 65, 40, 55, 70],
+            'pasta': [35, 65, 40, 55, 70],
+            '寿司': [10, 60, 20, 95, 80],
+            '天ぷら': [25, 55, 30, 70, 65],
+            'tempura': [25, 55, 30, 70, 65]
         };
 
         const normalizedName = dishName.toLowerCase();
         let profile = [50, 60, 40, 60, 70]; // Default profile
+        let matchedDish = '';
 
         // Find matching dish
         for (const [dish, dishProfile] of Object.entries(dishProfiles)) {
-            if (normalizedName.includes(dish)) {
+            if (normalizedName.includes(dish.toLowerCase())) {
                 profile = dishProfile;
+                matchedDish = dish;
                 break;
+            }
+        }
+
+        // Generate more realistic description based on the dish
+        let description = `A delicious ${dishName} with balanced flavors`;
+        let cuisine = 'International';
+        let characteristics = 'Mock analysis for demonstration';
+
+        if (matchedDish) {
+            if (matchedDish.includes('curry') || matchedDish.includes('カレー')) {
+                description = `${dishName} is a rich, aromatic dish with complex spices`;
+                cuisine = 'Asian';
+                characteristics = 'Rich, spicy, and deeply flavorful';
+            } else if (matchedDish.includes('sushi') || matchedDish.includes('寿司')) {
+                description = `${dishName} features fresh, clean flavors with subtle complexity`;
+                cuisine = 'Japanese';
+                characteristics = 'Fresh, clean, and delicate';
+            } else if (matchedDish.includes('pasta') || matchedDish.includes('パスタ')) {
+                description = `${dishName} offers comforting flavors with Italian flair`;
+                cuisine = 'Italian';
+                characteristics = 'Comforting and satisfying';
             }
         }
 
         return {
             profile: profile,
-            description: `A delicious ${dishName} with balanced flavors`,
-            cuisine: 'International',
-            characteristics: 'Mock analysis for demonstration'
+            description: description,
+            cuisine: cuisine,
+            characteristics: characteristics
         };
     }
 
     getMockDishImage(dishName) {
-        // Return a placeholder image URL
-        const encodedDishName = encodeURIComponent(dishName);
-        return `https://via.placeholder.com/400x300/667eea/ffffff?text=${encodedDishName}`;
+        // Use a more reliable image service or create a data URL
+        const canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = 300;
+        const ctx = canvas.getContext('2d');
+        
+        // Create a gradient background
+        const gradient = ctx.createLinearGradient(0, 0, 400, 300);
+        gradient.addColorStop(0, '#667eea');
+        gradient.addColorStop(1, '#764ba2');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 400, 300);
+        
+        // Add text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Split long dish names into multiple lines
+        const maxWidth = 350;
+        const words = dishName.split(' ');
+        let lines = [];
+        let currentLine = words[0];
+        
+        for (let i = 1; i < words.length; i++) {
+            const word = words[i];
+            const width = ctx.measureText(currentLine + ' ' + word).width;
+            if (width < maxWidth) {
+                currentLine += ' ' + word;
+            } else {
+                lines.push(currentLine);
+                currentLine = word;
+            }
+        }
+        lines.push(currentLine);
+        
+        // Draw text lines
+        const lineHeight = 30;
+        const startY = 150 - (lines.length - 1) * lineHeight / 2;
+        
+        lines.forEach((line, index) => {
+            ctx.fillText(line, 200, startY + index * lineHeight);
+        });
+        
+        // Add food emoji
+        ctx.font = '48px Arial';
+        ctx.fillText('🍽️', 200, 100);
+        
+        return canvas.toDataURL('image/png');
     }
 
     // Utility method to check if API is configured

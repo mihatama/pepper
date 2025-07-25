@@ -12,8 +12,8 @@ const urlsToCache = [
   '/js/i18n.js',
   '/locales/en.json',
   '/locales/ja.json',
-  '/manifest.json',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  '/manifest.json'
+  // Removed external CDN to avoid CSP issues
 ];
 
 // Install event
