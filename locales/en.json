@@ -1,0 +1,81 @@
+{
+  "tab": {
+    "manual": "Manual Blend",
+    "aiTaste": "AI Taste",
+    "dish": "Dish Recipe"
+  },
+  "manual": {
+    "title": "Flavor Profile"
+  },
+  "flavor": {
+    "spiciness": "Spiciness",
+    "aroma": "Aroma",
+    "citrusy": "Citrusy",
+    "freshness": "Freshness",
+    "depth": "Depth"
+  },
+  "result": {
+    "title": "Pepper Blend Recipe",
+    "totalAmount": "Total Amount",
+    "instructions": "Mix all ingredients thoroughly. Store in an airtight container."
+  },
+  "aiTaste": {
+    "title": "Describe Your Desired Taste",
+    "placeholder": "Describe the taste you want... (e.g., 'I want something spicy and aromatic for grilled meat')",
+    "analyze": "Analyze Taste",
+    "profile": "AI Generated Profile"
+  },
+  "dish": {
+    "title": "Enter Dish Name",
+    "placeholder": "Enter dish name... (e.g., 'Pad Thai', 'Carbonara', 'Tandoori Chicken')",
+    "generate": "Generate Recipe",
+    "image": "Dish Image",
+    "imagePlaceholder": "Image will appear here",
+    "profile": "Dish Flavor Profile",
+    "enhanced": "Enhanced with Peppers"
+  },
+  "voice": {
+    "start": "Start Voice",
+    "stop": "Stop Voice",
+    "listening": "Listening...",
+    "processing": "Processing voice..."
+  },
+  "loading": {
+    "text": "Processing...",
+    "analyzing": "Analyzing taste profile...",
+    "generating": "Generating image...",
+    "calculating": "Calculating blend..."
+  },
+  "peppers": {
+    "red": "Red Pepper",
+    "pink": "Pink Pepper",
+    "black": "Black Pepper",
+    "green": "Green Pepper",
+    "coriander": "Coriander"
+  },
+  "errors": {
+    "voiceNotSupported": "Voice recognition is not supported in this browser.",
+    "microphoneAccess": "Microphone access denied. Please allow microphone access and try again.",
+    "apiError": "API error occurred. Please try again later.",
+    "networkError": "Network error. Please check your connection.",
+    "invalidInput": "Please enter a valid description.",
+    "imageGenerationFailed": "Failed to generate image. Please try again.",
+    "tasteAnalysisFailed": "Failed to analyze taste. Please try again."
+  },
+  "success": {
+    "voiceRecorded": "Voice recorded successfully!",
+    "tasteAnalyzed": "Taste profile analyzed successfully!",
+    "imageGenerated": "Dish image generated successfully!",
+    "recipeGenerated": "Recipe generated successfully!"
+  },
+  "units": {
+    "grams": "g",
+    "teaspoons": "tsp",
+    "tablespoons": "tbsp"
+  },
+  "instructions": {
+    "manual": "Adjust the sliders to create your desired flavor profile. The pepper blend will be calculated automatically.",
+    "aiTaste": "Describe the taste you want using voice or text input. Our AI will analyze and create the perfect pepper blend.",
+    "dish": "Enter a dish name and we'll generate an image, analyze its flavor profile, and suggest peppers to enhance it."
+  }
+}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pepper Craft AI</title>
+    <meta name="description" content="AI-powered pepper blend calculator">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">🌶️ Pepper Craft AI</h1>
+                <div class="controls">
+                    <button id="langToggle" class="lang-toggle">
+                        <span id="langText">EN</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Feature Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="manual" data-i18n="tab.manual">Manual Blend</button>
+                    <button class="tab-btn" data-tab="ai-taste" data-i18n="tab.aiTaste">AI Taste</button>
+                    <button class="tab-btn" data-tab="dish" data-i18n="tab.dish">Dish Recipe</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Manual Blend Tab -->
+                    <div id="manual" class="tab-panel active">
+                        <div class="panel-grid">
+                            <div class="chart-section">
+                                <h2 data-i18n="manual.title">Flavor Profile</h2>
+                                <div class="chart-container">
+                                    <canvas id="radarChart"></canvas>
+                                </div>
+                                <div class="sliders">
+                                    <div class="slider-group">
+                                        <label data-i18n="flavor.spiciness">Spiciness</label>
+                                        <input type="range" id="spiciness" min="0" max="100" value="50" class="slider">
+                                        <span class="slider-value">50</span>
+                                    </div>
+                                    <div class="slider-group">
+                                        <label data-i18n="flavor.aroma">Aroma</label>
+                                        <input type="range" id="aroma" min="0" max="100" value="50" class="slider">
+                                        <span class="slider-value">50</span>
+                                    </div>
+                                    <div class="slider-group">
+                                        <label data-i18n="flavor.citrusy">Citrusy</label>
+                                        <input type="range" id="citrusy" min="0" max="100" value="50" class="slider">
+                                        <span class="slider-value">50</span>
+                                    </div>
+                                    <div class="slider-group">
+                                        <label data-i18n="flavor.freshness">Freshness</label>
+                                        <input type="range" id="freshness" min="0" max="100" value="50" class="slider">
+                                        <span class="slider-value">50</span>
+                                    </div>
+                                    <div class="slider-group">
+                                        <label data-i18n="flavor.depth">Depth</label>
+                                        <input type="range" id="depth" min="0" max="100" value="50" class="slider">
+                                        <span class="slider-value">50</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="result-section">
+                                <h2 data-i18n="result.title">Pepper Blend Recipe</h2>
+                                <div id="pepperResult" class="pepper-result">
+                                    <!-- Results will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Taste Tab -->
+                    <div id="ai-taste" class="tab-panel">
+                        <div class="input-section">
+                            <h2 data-i18n="aiTaste.title">Describe Your Desired Taste</h2>
+                            <div class="input-controls">
+                                <textarea id="tasteInput" placeholder="Describe the taste you want..." data-i18n-placeholder="aiTaste.placeholder"></textarea>
+                                <div class="voice-controls">
+                                    <button id="voiceBtn" class="voice-btn">
+                                        🎤 <span data-i18n="voice.start">Start Voice</span>
+                                    </button>
+                                    <button id="analyzeBtn" class="analyze-btn" data-i18n="aiTaste.analyze">Analyze Taste</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-grid">
+                            <div class="chart-section">
+                                <h3 data-i18n="aiTaste.profile">AI Generated Profile</h3>
+                                <div class="chart-container">
+                                    <canvas id="aiRadarChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="result-section">
+                                <h3 data-i18n="result.title">Pepper Blend Recipe</h3>
+                                <div id="aiPepperResult" class="pepper-result">
+                                    <!-- Results will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish Recipe Tab -->
+                    <div id="dish" class="tab-panel">
+                        <div class="input-section">
+                            <h2 data-i18n="dish.title">Enter Dish Name</h2>
+                            <div class="input-controls">
+                                <input type="text" id="dishInput" placeholder="Enter dish name..." data-i18n-placeholder="dish.placeholder">
+                                <div class="voice-controls">
+                                    <button id="dishVoiceBtn" class="voice-btn">
+                                        🎤 <span data-i18n="voice.start">Start Voice</span>
+                                    </button>
+                                    <button id="generateBtn" class="analyze-btn" data-i18n="dish.generate">Generate Recipe</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dish-content">
+                            <div class="dish-image-section">
+                                <h3 data-i18n="dish.image">Dish Image</h3>
+                                <div id="dishImageContainer" class="dish-image-container">
+                                    <div class="image-placeholder" data-i18n="dish.imagePlaceholder">Image will appear here</div>
+                                </div>
+                            </div>
+                            <div class="panel-grid">
+                                <div class="chart-section">
+                                    <h3 data-i18n="dish.profile">Dish Flavor Profile</h3>
+                                    <div class="chart-container">
+                                        <canvas id="dishRadarChart"></canvas>
+                                    </div>
+                                    <h4 data-i18n="dish.enhanced">Enhanced with Peppers</h4>
+                                    <div class="chart-container">
+                                        <canvas id="enhancedRadarChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="result-section">
+                                    <h3 data-i18n="result.title">Pepper Blend Recipe</h3>
+                                    <div id="dishPepperResult" class="pepper-result">
+                                        <!-- Results will be populated here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p data-i18n="loading.text">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/i18n.js"></script>
+    <script src="js/radar-chart.js"></script>
+    <script src="js/pepper-calculator.js"></script>
+    <script src="js/speech-recognition.js"></script>
+    <script src="js/gemini-api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

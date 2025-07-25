@@ -1,0 +1,340 @@
+/* Responsive Design */
+
+/* Tablet Styles */
+@media (max-width: 1024px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .panel-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .logo {
+        font-size: 1.6rem;
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+    .header .container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .logo {
+        font-size: 1.4rem;
+    }
+    
+    .tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .tab-btn {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .tab-content {
+        padding: 1.5rem;
+    }
+    
+    .panel-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .chart-container {
+        height: 200px;
+        padding: 1rem;
+    }
+    
+    .sliders,
+    .input-controls,
+    .result-section {
+        padding: 1rem;
+    }
+    
+    .voice-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .voice-btn,
+    .analyze-btn {
+        flex: none;
+        width: 100%;
+    }
+    
+    .slider-group {
+        margin-bottom: 1rem;
+    }
+    
+    .slider-group label {
+        font-size: 0.9rem;
+    }
+    
+    .dish-image-container {
+        min-height: 150px;
+        padding: 1rem;
+    }
+    
+    .pepper-item {
+        padding: 0.75rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .pepper-amount {
+        align-self: flex-end;
+    }
+}
+
+/* Small Mobile Styles */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .main {
+        padding: 1rem 0;
+    }
+    
+    .tab-content {
+        padding: 1rem;
+        border-radius: 15px;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    .tab-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+    
+    .chart-container {
+        height: 180px;
+        padding: 0.5rem;
+    }
+    
+    .sliders,
+    .input-controls,
+    .result-section {
+        padding: 0.75rem;
+    }
+    
+    #tasteInput {
+        min-height: 80px;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    #dishInput {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .voice-btn,
+    .analyze-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .dish-image-container {
+        min-height: 120px;
+        padding: 0.75rem;
+    }
+    
+    .pepper-item {
+        padding: 0.5rem;
+    }
+    
+    .pepper-name {
+        font-size: 0.9rem;
+    }
+    
+    .pepper-amount {
+        font-size: 1rem;
+    }
+    
+    .loading-overlay p {
+        font-size: 1rem;
+    }
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .header {
+        padding: 0.5rem 0;
+    }
+    
+    .main {
+        padding: 1rem 0;
+    }
+    
+    .panel-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .chart-container {
+        height: 180px;
+    }
+    
+    .dish-content .panel-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .logo {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .slider::-webkit-slider-thumb {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .tab-content {
+        background: rgba(45, 55, 72, 0.95);
+        color: #e2e8f0;
+    }
+    
+    .chart-section h2,
+    .chart-section h3,
+    .input-section h2,
+    .result-section h2,
+    .result-section h3,
+    .dish-image-section h3 {
+        color: #e2e8f0;
+    }
+    
+    .pepper-name {
+        color: #e2e8f0;
+    }
+    
+    #tasteInput,
+    #dishInput {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    #tasteInput::placeholder,
+    #dishInput::placeholder {
+        color: #a0aec0;
+    }
+    
+    .slider-group label {
+        color: #e2e8f0;
+    }
+    
+    .pepper-item {
+        background: #2d3748;
+        border-left-color: #667eea;
+    }
+    
+    .image-placeholder {
+        color: #a0aec0;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .header,
+    .tabs,
+    .voice-controls,
+    .loading-overlay {
+        display: none !important;
+    }
+    
+    .tab-content {
+        background: white !important;
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+    
+    .chart-container {
+        border: 1px solid #ddd;
+    }
+    
+    .pepper-result {
+        page-break-inside: avoid;
+    }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .loading-spinner {
+        animation: none;
+        border: 5px solid #ccc;
+        border-top: 5px solid #667eea;
+    }
+}
+
+/* Focus Styles for Keyboard Navigation */
+@media (prefers-reduced-motion: no-preference) {
+    .tab-btn:focus,
+    .lang-toggle:focus,
+    .voice-btn:focus,
+    .analyze-btn:focus {
+        outline: 2px solid #667eea;
+        outline-offset: 2px;
+    }
+    
+    .slider:focus {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .tab-btn,
+    .voice-btn,
+    .analyze-btn,
+    .lang-toggle {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .slider {
+        height: 12px;
+    }
+    
+    .slider::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+    }
+}

@@ -1,0 +1,81 @@
+{
+  "tab": {
+    "manual": "手動ブレンド",
+    "aiTaste": "AI味覚",
+    "dish": "料理レシピ"
+  },
+  "manual": {
+    "title": "フレーバープロファイル"
+  },
+  "flavor": {
+    "spiciness": "辛味",
+    "aroma": "香り",
+    "citrusy": "酸味",
+    "freshness": "フレッシュ感",
+    "depth": "深み"
+  },
+  "result": {
+    "title": "ペッパーブレンドレシピ",
+    "totalAmount": "総量",
+    "instructions": "すべての材料をよく混ぜ合わせてください。密閉容器で保存してください。"
+  },
+  "aiTaste": {
+    "title": "希望する味を説明してください",
+    "placeholder": "欲しい味を説明してください...（例：「グリル肉用にスパイシーで香り豊かなものが欲しい」）",
+    "analyze": "味を分析",
+    "profile": "AI生成プロファイル"
+  },
+  "dish": {
+    "title": "料理名を入力",
+    "placeholder": "料理名を入力してください...（例：「パッタイ」「カルボナーラ」「タンドリーチキン」）",
+    "generate": "レシピ生成",
+    "image": "料理画像",
+    "imagePlaceholder": "画像がここに表示されます",
+    "profile": "料理のフレーバープロファイル",
+    "enhanced": "ペッパーで強化"
+  },
+  "voice": {
+    "start": "音声開始",
+    "stop": "音声停止",
+    "listening": "聞き取り中...",
+    "processing": "音声処理中..."
+  },
+  "loading": {
+    "text": "処理中...",
+    "analyzing": "味覚プロファイルを分析中...",
+    "generating": "画像生成中...",
+    "calculating": "ブレンドを計算中..."
+  },
+  "peppers": {
+    "red": "レッドペッパー",
+    "pink": "ピンクペッパー",
+    "black": "ブラックペッパー",
+    "green": "グリーンペッパー",
+    "coriander": "コリアンダー"
+  },
+  "errors": {
+    "voiceNotSupported": "このブラウザでは音声認識がサポートされていません。",
+    "microphoneAccess": "マイクへのアクセスが拒否されました。マイクアクセスを許可して再試行してください。",
+    "apiError": "APIエラーが発生しました。後でもう一度お試しください。",
+    "networkError": "ネットワークエラーです。接続を確認してください。",
+    "invalidInput": "有効な説明を入力してください。",
+    "imageGenerationFailed": "画像の生成に失敗しました。再試行してください。",
+    "tasteAnalysisFailed": "味の分析に失敗しました。再試行してください。"
+  },
+  "success": {
+    "voiceRecorded": "音声が正常に録音されました！",
+    "tasteAnalyzed": "味覚プロファイルが正常に分析されました！",
+    "imageGenerated": "料理画像が正常に生成されました！",
+    "recipeGenerated": "レシピが正常に生成されました！"
+  },
+  "units": {
+    "grams": "g",
+    "teaspoons": "小さじ",
+    "tablespoons": "大さじ"
+  },
+  "instructions": {
+    "manual": "スライダーを調整して希望のフレーバープロファイルを作成してください。ペッパーブレンドは自動的に計算されます。",
+    "aiTaste": "音声またはテキスト入力で希望する味を説明してください。AIが分析して完璧なペッパーブレンドを作成します。",
+    "dish": "料理名を入力すると、画像を生成し、フレーバープロファイルを分析して、それを強化するペッパーを提案します。"
+  }
+}
