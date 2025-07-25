@@ -19,7 +19,9 @@ A Progressive Web Application for creating custom pepper blend recipes using AI-
 
 ## 🚀 Live Demo
 
-The app is designed to be deployed on Netlify. You can access it at your deployed URL.
+**Live Site**: [https://peppercraftai.netlify.app/](https://peppercraftai.netlify.app/)
+
+The app is deployed on Netlify and ready to use. All features including AI-powered pepper blend calculations, dish analysis, and multilingual support are available.
 
 ## 🛠️ Technology Stack
 

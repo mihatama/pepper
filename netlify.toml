@@ -1,6 +1,6 @@
 [build]
-  # 静的サイトなのでビルドコマンドは不要
-  # command = ""
+  # ビルドコマンドを有効化して環境変数を注入
+  command = "node build.js"
   
   # 公開ディレクトリ
   publish = "."

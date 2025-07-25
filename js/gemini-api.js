@@ -12,20 +12,26 @@ class GeminiAPI {
         // Try to get API key from various sources
         // 1. From window object (set by build process)
         // 2. From meta tag (set by build process)
-        // 3. From Netlify environment variables (if available)
+        // 3. From config.json file (generated at build time)
         // 4. Fallback to placeholder for development
         
         this.apiKey = window.VITE_GEMINI_API_KEY || 
                      window.REACT_APP_GEMINI_API_KEY ||
                      this.getMetaContent('gemini-api-key') ||
-                     this.getNetlifyEnvVar() ||
                      'YOUR_GEMINI_API_KEY_HERE';
         
-        if (this.apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
-            console.warn('Gemini API key not configured. Please set VITE_GEMINI_API_KEY environment variable in Netlify.');
-            console.log('For demo purposes, using mock data instead of real API calls.');
+        // Remove empty strings and whitespace
+        if (this.apiKey && this.apiKey.trim() === '') {
+            this.apiKey = 'YOUR_GEMINI_API_KEY_HERE';
+        }
+        
+        if (this.apiKey === 'YOUR_GEMINI_API_KEY_HERE' || !this.apiKey) {
+            console.warn('🔑 Gemini API key not configured. Please set VITE_GEMINI_API_KEY environment variable in Netlify.');
+            console.log('📝 For demo purposes, using mock data instead of real API calls.');
+            console.log('💡 To enable LLM: Set VITE_GEMINI_API_KEY in Netlify → Site settings → Environment variables');
         } else {
             console.log('✅ Gemini API key configured successfully');
+            console.log('🤖 LLM-powered taste analysis is now active!');
         }
     }
 
