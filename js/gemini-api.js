@@ -105,45 +105,10 @@ class GeminiAPI {
         }
     }
 
-    // Generate dish image using Imagen
+    // Generate dish image using Canvas (Gemini API doesn't support image generation)
     async generateDishImage(dishName) {
-        if (!this.apiKey || this.apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
-            // Return mock image for demo purposes
-            return this.getMockDishImage(dishName);
-        }
-
-        try {
-            const prompt = `A beautifully plated ${dishName}, professional food photography, high quality, appetizing, well-lit`;
-            
-            const response = await fetch(`${this.baseURL}/models/${this.imageModel}:generateImage?key=${this.apiKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompt: {
-                        text: prompt
-                    },
-                    safetySettings: [
-                        {
-                            category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
-                            threshold: 'BLOCK_MEDIUM_AND_ABOVE'
-                        }
-                    ]
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.candidates[0].image.data;
-        } catch (error) {
-            console.error('Image generation error:', error);
-            // Fallback to mock image
-            return this.getMockDishImage(dishName);
-        }
+        // Always use Canvas-generated image since Gemini API doesn't support image generation
+        return this.getMockDishImage(dishName);
     }
 
     // Create taste analysis prompt
