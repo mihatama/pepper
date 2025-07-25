@@ -4,7 +4,8 @@ class GeminiAPI {
         this.apiKey = null;
         this.baseURL = 'https://generativelanguage.googleapis.com/v1beta';
         this.model = 'gemini-1.5-flash';
-        this.imageModel = 'imagen-3.0-generate-002'; // 公式ドキュメント準拠の正しいモデル名
+        this.imageModel = 'imagen-4.0-generate-preview-06-06'; // 最新のImagen 4モデル
+        this.fallbackImageModel = 'imagen-3.0-generate-002'; // フォールバック用
         this.imageCache = new Map(); // 画像キャッシュ
         this.maxCacheSize = 50; // 最大キャッシュサイズ
         this.setupAPIKey();
@@ -157,7 +158,7 @@ class GeminiAPI {
         const prompt = this.createImagePrompt(dishName);
         
         console.log('🎨 Calling Gemini Imagen API with prompt:', prompt);
-        console.log('🔧 Using simplified API call without negativePrompt');
+        console.log('🔧 Using latest API specification (2025)');
         
         try {
             // Check if we're in a browser environment that supports fetch with proper CORS
@@ -165,74 +166,21 @@ class GeminiAPI {
                 throw new Error('Not in browser environment');
             }
             
-            // Use the simplified Imagen API call
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImage?key=${this.apiKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompt: prompt,
-                    aspectRatio: "1:1",
-                    safetyFilterLevel: "BLOCK_ONLY_HIGH",
-                    personGeneration: "DONT_ALLOW"
-                })
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.log('🚨 Imagen API response error:', response.status, errorText);
-                
-                // If it's still a negativePrompt error, try even simpler request
-                if (errorText.includes('negativePrompt')) {
-                    console.log('🔧 Trying minimal API request...');
-                    const minimalResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImage?key=${this.apiKey}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            prompt: prompt
-                        })
-                    });
-                    
-                    if (minimalResponse.ok) {
-                        const minimalData = await minimalResponse.json();
-                        console.log('🎨 Minimal Imagen API response:', minimalData);
-                        
-                        if (minimalData.candidates && minimalData.candidates.length > 0) {
-                            const candidate = minimalData.candidates[0];
-                            if (candidate.imageBytes) {
-                                console.log('✅ Minimal Imagen API success');
-                                return `data:image/png;base64,${candidate.imageBytes}`;
-                            }
-                        }
-                    }
-                }
-                
-                throw new Error(`Imagen API error! status: ${response.status}, message: ${errorText}`);
-            }
-
-            const data = await response.json();
-            console.log('🎨 Imagen API response:', data);
-            
-            // Extract image data from response according to the new format
-            if (data.candidates && data.candidates.length > 0) {
-                const candidate = data.candidates[0];
-                
-                // Handle different response formats
-                if (candidate.imageBytes) {
-                    // Base64 encoded image
-                    console.log('✅ Imagen API success: Base64 image received');
-                    return `data:image/png;base64,${candidate.imageBytes}`;
-                } else if (candidate.mimeType && candidate.imageBytes) {
-                    // MIME type with data
-                    console.log('✅ Imagen API success: MIME data received');
-                    return `data:${candidate.mimeType};base64,${candidate.imageBytes}`;
-                }
+            // Try latest Imagen 4 model first
+            console.log('🚀 Trying Imagen 4 (latest model)...');
+            const imagen4Result = await this.tryImagenAPI(this.imageModel, prompt);
+            if (imagen4Result) {
+                return imagen4Result;
             }
             
-            throw new Error('No valid image data in response');
+            // Fallback to Imagen 3 if Imagen 4 fails
+            console.log('🔄 Falling back to Imagen 3...');
+            const imagen3Result = await this.tryImagenAPI(this.fallbackImageModel, prompt);
+            if (imagen3Result) {
+                return imagen3Result;
+            }
+            
+            throw new Error('All Imagen models failed');
             
         } catch (error) {
             console.log('🚨 Imagen API detailed error:', error);
@@ -249,6 +197,133 @@ class GeminiAPI {
             }
             
             throw error;
+        }
+    }
+
+    // Try specific Imagen API model
+    async tryImagenAPI(modelName, prompt) {
+        try {
+            console.log(`🎯 Trying model: ${modelName}`);
+            
+            // Determine API endpoint and request format based on model
+            let endpoint, requestBody;
+            
+            if (modelName.includes('imagen-4')) {
+                // Imagen 4 uses :predict endpoint
+                endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict?key=${this.apiKey}`;
+                requestBody = {
+                    instances: [{
+                        prompt: prompt
+                    }],
+                    parameters: {
+                        sampleCount: 1,
+                        aspectRatio: "1:1",
+                        safetyFilterLevel: "BLOCK_ONLY_HIGH",
+                        personGeneration: "dont_allow"
+                    }
+                };
+            } else {
+                // Imagen 3 uses :generateImage endpoint
+                endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateImage?key=${this.apiKey}`;
+                requestBody = {
+                    prompt: prompt,
+                    aspectRatio: "1:1",
+                    safetyFilterLevel: "BLOCK_ONLY_HIGH",
+                    personGeneration: "dont_allow"
+                };
+            }
+            
+            console.log(`📡 API Endpoint: ${endpoint}`);
+            console.log(`📦 Request Body:`, requestBody);
+            
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.log(`🚨 ${modelName} API response error:`, response.status, errorText);
+                
+                // Try minimal request if there are parameter issues
+                if (errorText.includes('parameter') || errorText.includes('invalid') || response.status === 400) {
+                    console.log(`🔧 Trying minimal request for ${modelName}...`);
+                    
+                    const minimalEndpoint = modelName.includes('imagen-4') ? 
+                        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict?key=${this.apiKey}` :
+                        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateImage?key=${this.apiKey}`;
+                    
+                    const minimalBody = modelName.includes('imagen-4') ? 
+                        { instances: [{ prompt: prompt }] } :
+                        { prompt: prompt };
+                    
+                    const minimalResponse = await fetch(minimalEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(minimalBody)
+                    });
+                    
+                    if (minimalResponse.ok) {
+                        const minimalData = await minimalResponse.json();
+                        console.log(`🎨 Minimal ${modelName} API response:`, minimalData);
+                        return this.extractImageFromResponse(minimalData, modelName);
+                    }
+                }
+                
+                throw new Error(`${modelName} API error! status: ${response.status}, message: ${errorText}`);
+            }
+
+            const data = await response.json();
+            console.log(`🎨 ${modelName} API response:`, data);
+            
+            return this.extractImageFromResponse(data, modelName);
+            
+        } catch (error) {
+            console.log(`❌ ${modelName} failed:`, error.message);
+            return null;
+        }
+    }
+
+    // Extract image data from API response
+    extractImageFromResponse(data, modelName) {
+        try {
+            if (modelName.includes('imagen-4')) {
+                // Imagen 4 response format
+                if (data.predictions && data.predictions.length > 0) {
+                    const prediction = data.predictions[0];
+                    if (prediction.bytesBase64Encoded) {
+                        console.log(`✅ ${modelName} success: Base64 image received`);
+                        return `data:image/png;base64,${prediction.bytesBase64Encoded}`;
+                    } else if (prediction.mimeType && prediction.bytesBase64Encoded) {
+                        console.log(`✅ ${modelName} success: MIME data received`);
+                        return `data:${prediction.mimeType};base64,${prediction.bytesBase64Encoded}`;
+                    }
+                }
+            } else {
+                // Imagen 3 response format
+                if (data.candidates && data.candidates.length > 0) {
+                    const candidate = data.candidates[0];
+                    if (candidate.imageBytes) {
+                        console.log(`✅ ${modelName} success: Base64 image received`);
+                        return `data:image/png;base64,${candidate.imageBytes}`;
+                    } else if (candidate.mimeType && candidate.imageBytes) {
+                        console.log(`✅ ${modelName} success: MIME data received`);
+                        return `data:${candidate.mimeType};base64,${candidate.imageBytes}`;
+                    }
+                }
+            }
+            
+            console.log(`❌ No valid image data in ${modelName} response`);
+            return null;
+            
+        } catch (error) {
+            console.log(`❌ Error extracting image from ${modelName} response:`, error);
+            return null;
         }
     }
 
