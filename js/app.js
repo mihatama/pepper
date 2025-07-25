@@ -96,6 +96,19 @@ class PepperCraftApp {
         }
     }
 
+    // Update manual blend from radar chart interaction
+    updateManualBlendFromChart(profile) {
+        this.currentProfile = profile;
+        
+        // Calculate and display blend (profile is already 1-5 scale)
+        if (window.pepperCalculator) {
+            // Convert 1-5 scale to 0-100 scale for pepper calculation
+            const scaledProfile = profile.map(value => (value - 1) * 25); // Convert 1-5 to 0-100
+            const blend = window.pepperCalculator.calculateBlend(scaledProfile);
+            this.displayBlend(blend, 'pepperResult');
+        }
+    }
+
     // Setup AI taste functionality
     setupAITaste() {
         const analyzeBtn = document.getElementById('analyzeBtn');
