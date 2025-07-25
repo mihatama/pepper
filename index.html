@@ -192,13 +192,29 @@
                         if (config.apiKey && !window.VITE_GEMINI_API_KEY) {
                             window.VITE_GEMINI_API_KEY = config.apiKey;
                             console.log('🔑 API key loaded from config file');
+                            // Reinitialize Gemini API with new key
+                            if (window.geminiAPI) {
+                                window.geminiAPI.setupAPIKey();
+                            }
                         }
                     })
                     .catch(error => {
                         console.log('📄 Config file not found or error:', error.message);
+                        console.log('💡 Build script may not have run. Check Netlify build logs.');
                     });
             }
         }
+        
+        // Add manual API key configuration for testing
+        window.setGeminiAPIKey = function(apiKey) {
+            window.VITE_GEMINI_API_KEY = apiKey;
+            if (window.geminiAPI) {
+                window.geminiAPI.setAPIKey(apiKey);
+                console.log('🔑 API key manually set. LLM functionality should now be active.');
+            }
+        };
+        
+        console.log('💡 To manually set API key, use: setGeminiAPIKey("your-api-key-here")');
     </script>
 
     <!-- Scripts -->
