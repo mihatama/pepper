@@ -214,8 +214,17 @@ class PepperCraftApp {
                 window.chartManager.updateChart('dish', dishAnalysis.profile);
             }
             
-            // Calculate enhanced profile (more pentagon-like)
-            const enhancedProfile = this.calculateEnhancedProfile(dishAnalysis.profile);
+            // Calculate pepper blend for enhancement (to make more pentagon-like)
+            const targetProfile = this.calculateEnhancedProfile(dishAnalysis.profile);
+            const enhancementNeeded = targetProfile.map((target, index) => 
+                Math.max(0, target - dishAnalysis.profile[index])
+            );
+            
+            // Calculate enhanced profile with peppers (original + pepper contribution)
+            const pepperContribution = this.calculatePepperContribution(enhancementNeeded);
+            const enhancedWithPeppers = dishAnalysis.profile.map((original, index) => 
+                Math.min(5, original + pepperContribution[index])
+            );
             
             // Update enhanced radar chart
             if (window.chartManager) {
@@ -223,14 +232,9 @@ class PepperCraftApp {
                 if (enhancedChart) {
                     enhancedChart.clearAdditionalDatasets();
                     enhancedChart.updateData(dishAnalysis.profile);
-                    enhancedChart.addDataset('Enhanced', enhancedProfile, '#27ae60');
+                    enhancedChart.addDataset('Enhanced with Peppers', enhancedWithPeppers, '#27ae60');
                 }
             }
-            
-            // Calculate pepper blend for enhancement
-            const enhancementNeeded = enhancedProfile.map((enhanced, index) => 
-                Math.max(0, enhanced - dishAnalysis.profile[index])
-            );
             
             if (window.pepperCalculator) {
                 // Convert 1-5 scale to 0-100 scale for pepper calculation
@@ -258,6 +262,34 @@ class PepperCraftApp {
             const difference = average - value;
             return Math.round(value + (difference * targetRegularity));
         });
+    }
+
+    // Calculate pepper contribution to flavor profile
+    calculatePepperContribution(enhancementNeeded) {
+        // ペッパーの種類ごとの味への貢献度（1-5スケール）
+        const pepperProfiles = {
+            red: [4, 3, 1, 2, 4],      // 辛味、香り、酸味、フレッシュ感、深み
+            pink: [2, 4, 3, 4, 2],     // マイルドで香り高い
+            black: [3, 5, 2, 2, 5],    // 深い香りと複雑さ
+            green: [2, 3, 4, 5, 3],    // フレッシュで酸味
+            coriander: [1, 4, 3, 3, 4] // 香りと深み
+        };
+
+        // 必要な強化量に基づいてペッパーの貢献度を計算
+        const contribution = [0, 0, 0, 0, 0];
+        
+        enhancementNeeded.forEach((needed, index) => {
+            if (needed > 0) {
+                // 各ペッパーの貢献度を重み付けして加算
+                Object.values(pepperProfiles).forEach(profile => {
+                    const pepperContribution = (profile[index] / 5) * needed * 0.3; // 30%の貢献度
+                    contribution[index] += pepperContribution;
+                });
+            }
+        });
+
+        // 1-5の範囲に正規化
+        return contribution.map(value => Math.min(2, Math.max(0, value)));
     }
 
     // Display dish image with enhanced loading and error handling
