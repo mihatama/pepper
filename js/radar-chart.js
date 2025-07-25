@@ -15,11 +15,11 @@ class RadarChart {
     initChart() {
         const defaultData = {
             labels: [
-                window.i18n?.t('flavor.spiciness') || 'Spiciness',
-                window.i18n?.t('flavor.aroma') || 'Aroma',
-                window.i18n?.t('flavor.citrusy') || 'Citrusy',
-                window.i18n?.t('flavor.freshness') || 'Freshness',
-                window.i18n?.t('flavor.depth') || 'Depth'
+                window.i18n?.t('spiciness') || 'Spiciness',
+                window.i18n?.t('aroma') || 'Aroma',
+                window.i18n?.t('citrusy') || 'Citrusy',
+                window.i18n?.t('freshness') || 'Freshness',
+                window.i18n?.t('depth') || 'Depth'
             ],
             datasets: [{
                 label: 'Flavor Profile',

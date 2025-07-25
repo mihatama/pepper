@@ -376,7 +376,7 @@ class PepperCraftApp {
         // Add total and instructions
         html += `
             <div class="pepper-item" style="border-left-color: #2c3e50; margin-top: 1rem;">
-                <span class="pepper-name">${window.i18n ? window.i18n.t('result.totalAmount') : 'Total Amount'}</span>
+                <span class="pepper-name">${window.i18n ? window.i18n.t('totalAmount') : 'Total Amount'}</span>
                 <span class="pepper-amount">${totalAmount.toFixed(1)}g</span>
             </div>
             <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; font-size: 0.9rem; color: #666;">

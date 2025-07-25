@@ -7,16 +7,14 @@
   "manual": {
     "title": "フレーバープロファイル"
   },
-  "flavor": {
-    "spiciness": "辛味",
-    "aroma": "香り",
-    "citrusy": "酸味",
-    "freshness": "フレッシュ感",
-    "depth": "深み"
-  },
+  "spiciness": "辛味",
+  "aroma": "香り",
+  "citrusy": "酸味",
+  "freshness": "フレッシュ感",
+  "depth": "深み",
+  "totalAmount": "総量",
   "result": {
     "title": "ペッパーブレンドレシピ",
-    "totalAmount": "総量",
     "instructions": "すべての材料をよく混ぜ合わせてください。密閉容器で保存してください。"
   },
   "aiTaste": {

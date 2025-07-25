@@ -7,16 +7,14 @@
   "manual": {
     "title": "Flavor Profile"
   },
-  "flavor": {
-    "spiciness": "Spiciness",
-    "aroma": "Aroma",
-    "citrusy": "Citrusy",
-    "freshness": "Freshness",
-    "depth": "Depth"
-  },
+  "spiciness": "Spiciness",
+  "aroma": "Aroma",
+  "citrusy": "Citrusy",
+  "freshness": "Freshness",
+  "depth": "Depth",
+  "totalAmount": "Total Amount",
   "result": {
     "title": "Pepper Blend Recipe",
-    "totalAmount": "Total Amount",
     "instructions": "Mix all ingredients thoroughly. Store in an airtight container."
   },
   "aiTaste": {

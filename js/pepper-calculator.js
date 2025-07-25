@@ -217,9 +217,10 @@ class PepperCalculator {
 
         Object.keys(blend).forEach(pepper => {
             if (blend[pepper] > 0) {
+                const pepperName = window.i18n ? window.i18n.getPepperName(pepper) : pepper;
                 formatted.push({
                     name: pepper,
-                    displayName: window.i18n ? window.i18n.getPepperName(pepper) : pepper,
+                    displayName: pepperName,
                     amount: blend[pepper],
                     unit: unitSymbol,
                     percentage: Math.round((blend[pepper] / this.baseAmount) * 100)
