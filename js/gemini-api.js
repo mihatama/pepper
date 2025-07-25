@@ -8,7 +8,7 @@ class GeminiAPI {
         this.setupAPIKey();
     }
 
-    setupAPIKey() {
+    async setupAPIKey() {
         // Try to get API key from various sources
         // 1. From window object (set by build process)
         // 2. From meta tag (set by build process)
@@ -17,8 +17,23 @@ class GeminiAPI {
         
         this.apiKey = window.VITE_GEMINI_API_KEY || 
                      window.REACT_APP_GEMINI_API_KEY ||
-                     this.getMetaContent('gemini-api-key') ||
-                     'YOUR_GEMINI_API_KEY_HERE';
+                     this.getMetaContent('gemini-api-key');
+        
+        // If no API key found, try to load from config.json
+        if (!this.apiKey || this.apiKey.trim() === '') {
+            try {
+                const response = await fetch('/config.json');
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.apiKey && config.apiKey.trim() !== '') {
+                        this.apiKey = config.apiKey;
+                        console.log('🔑 API key loaded from config.json');
+                    }
+                }
+            } catch (error) {
+                console.log('📄 Could not load config.json:', error.message);
+            }
+        }
         
         // Remove empty strings and whitespace
         if (this.apiKey && this.apiKey.trim() === '') {

@@ -166,6 +166,15 @@
 
     <!-- Environment Variables (for Netlify deployment) -->
     <script>
+        // Debug: Check what environment variables are available
+        console.log('🔍 Environment Variables Debug:');
+        console.log('- window.VITE_GEMINI_API_KEY:', window.VITE_GEMINI_API_KEY ? '✅ Set' : '❌ Not set');
+        console.log('- BUILD_TIME:', window.BUILD_TIME || 'Not set');
+        
+        // Check meta tags
+        const metaApiKey = document.querySelector('meta[name="gemini-api-key"]');
+        console.log('- Meta tag API key:', metaApiKey ? '✅ Found' : '❌ Not found');
+        
         // Try to get environment variables from various sources
         if (typeof window !== 'undefined') {
             // Check if running on Netlify and try to get environment variables
@@ -173,9 +182,21 @@
                                  window.location.hostname.includes('netlify.com');
             
             if (netlifyContext) {
-                // For Netlify deployment, we'll use a different approach
-                // The API key should be set via Netlify's environment variables
                 console.log('🌐 Running on Netlify platform');
+                
+                // Try to load config.json if it exists
+                fetch('/config.json')
+                    .then(response => response.json())
+                    .then(config => {
+                        console.log('📄 Config file loaded:', config);
+                        if (config.apiKey && !window.VITE_GEMINI_API_KEY) {
+                            window.VITE_GEMINI_API_KEY = config.apiKey;
+                            console.log('🔑 API key loaded from config file');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('📄 Config file not found or error:', error.message);
+                    });
             }
         }
     </script>
