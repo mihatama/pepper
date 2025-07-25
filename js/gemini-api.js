@@ -4,7 +4,7 @@ class GeminiAPI {
         this.apiKey = null;
         this.baseURL = 'https://generativelanguage.googleapis.com/v1beta';
         this.model = 'gemini-1.5-flash';
-        this.imageModel = 'imagen-3.0-generate-001'; // 公式ドキュメント推奨モデル
+        this.imageModel = 'imagen-3.0-generate-002'; // 公式ドキュメント準拠の正しいモデル名
         this.imageCache = new Map(); // 画像キャッシュ
         this.maxCacheSize = 50; // 最大キャッシュサイズ
         this.setupAPIKey();
