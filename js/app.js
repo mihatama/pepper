@@ -184,13 +184,23 @@ class PepperCraftApp {
 
     // Generate dish recipe using AI
     async generateDishRecipe(dishName) {
+        // Show initial loading
         this.showLoading(window.i18n ? window.i18n.t('loading.generating') : 'Generating recipe...');
         
         try {
-            // Generate image and analyze dish in parallel
+            // Step 1: Show image generation progress
+            this.updateLoadingMessage('🎨 AI画像生成中...');
+            const imagePromise = window.geminiAPI.generateDishImage(dishName);
+            
+            // Step 2: Show dish analysis progress
+            this.updateLoadingMessage('🧠 料理分析中...');
+            const dishAnalysisPromise = window.geminiAPI.analyzeDish(dishName);
+            
+            // Wait for both to complete
+            this.updateLoadingMessage('⚡ 最終処理中...');
             const [imageUrl, dishAnalysis] = await Promise.all([
-                window.geminiAPI.generateDishImage(dishName),
-                window.geminiAPI.analyzeDish(dishName)
+                imagePromise,
+                dishAnalysisPromise
             ]);
             
             // Display dish image
@@ -362,6 +372,15 @@ class PepperCraftApp {
         if (this.loadingOverlay) {
             this.loadingOverlay.classList.remove('show');
             this.isLoading = false;
+        }
+    }
+
+    updateLoadingMessage(message) {
+        if (this.loadingOverlay && this.isLoading) {
+            const loadingText = this.loadingOverlay.querySelector('p');
+            if (loadingText) {
+                loadingText.textContent = message;
+            }
         }
     }
 

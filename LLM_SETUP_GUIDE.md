@@ -5,6 +5,8 @@
 現在、「味を分析」ボタンを押した時は **LLMを使用していません**。
 代わりに、キーワードベースの簡単な分析（モックデータ）を使用しています。
 
+**新機能**: Gemini APIのImagen 3.0による **AI画像生成機能** を実装済み！
+
 ## 🔧 LLMを有効にする方法
 
 ### 1. Gemini APIキーの取得
@@ -48,6 +50,14 @@ APIキーが正しく設定されると、以下のように動作します：
 - **LLM処理**: 料理の典型的な味プロファイルを分析
 - **出力**: 味のバランスとペッパーブレンドの提案
 
+### 🎨 AI画像生成機能（NEW!）
+- **モデル**: Imagen 3.0 Fast Generate（高速生成）
+- **入力例**: "sushi", "カレー", "pad thai"
+- **処理**: 料理名から高品質な料理写真を生成
+- **出力**: プロ品質の料理画像（4:3アスペクト比）
+- **フォールバック**: 外部API → 高品質Canvas画像
+- **キャッシュ**: 最大50枚の画像をキャッシュして高速表示
+
 ## 📊 現在のモックデータ vs LLM
 
 ### モックデータ（現在）
@@ -79,6 +89,27 @@ For demo purposes, using mock data instead of real API calls.
 **APIキー設定済み時**:
 ```
 ✅ Gemini API key configured successfully
+🤖 LLM-powered taste analysis is now active!
+```
+
+### 3. 画像生成ログの確認
+**画像生成時のコンソールログ**:
+```
+🎨 Generating AI image for: sushi
+🎨 Calling Gemini Imagen API with prompt: A beautiful, appetizing photo of sushi, professional food photography...
+📦 Cached image for: sushi (cache size: 1)
+```
+
+**キャッシュ使用時**:
+```
+🖼️ Using cached image for: sushi
+```
+
+**フォールバック時**:
+```
+🎨 Gemini image generation failed: [error message]
+🌐 Trying external image APIs for: sushi
+🎨 Using enhanced canvas image for: sushi
 ```
 
 ### 2. 分析結果の違い

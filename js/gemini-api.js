@@ -4,7 +4,9 @@ class GeminiAPI {
         this.apiKey = null;
         this.baseURL = 'https://generativelanguage.googleapis.com/v1beta';
         this.model = 'gemini-1.5-flash';
-        this.imageModel = 'imagen-3.0-generate-001';
+        this.imageModel = 'imagen-3.0-fast-generate-001'; // 高速モデルを使用
+        this.imageCache = new Map(); // 画像キャッシュ
+        this.maxCacheSize = 50; // 最大キャッシュサイズ
         this.setupAPIKey();
     }
 
@@ -105,24 +107,170 @@ class GeminiAPI {
         }
     }
 
-    // Generate dish image using external API or enhanced Canvas
+    // Generate dish image using Gemini Imagen API
     async generateDishImage(dishName) {
+        // Check cache first
+        const cacheKey = dishName.toLowerCase().trim();
+        if (this.imageCache.has(cacheKey)) {
+            console.log('🖼️ Using cached image for:', dishName);
+            return this.imageCache.get(cacheKey);
+        }
+
         if (!this.apiKey || this.apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
+            console.log('🔑 No API key, using enhanced canvas image');
             return this.getEnhancedDishImage(dishName);
         }
 
         try {
-            // Try to use a free image API first
+            // Try Gemini Imagen API first
+            console.log('🎨 Generating AI image for:', dishName);
+            const aiImageUrl = await this.generateDishImageWithAI(dishName);
+            if (aiImageUrl) {
+                this.addToCache(cacheKey, aiImageUrl);
+                return aiImageUrl;
+            }
+        } catch (error) {
+            console.log('🎨 Gemini image generation failed:', error.message);
+        }
+
+        try {
+            // Fallback to free external APIs
+            console.log('🌐 Trying external image APIs for:', dishName);
             const imageUrl = await this.fetchDishImageFromAPI(dishName);
             if (imageUrl) {
+                this.addToCache(cacheKey, imageUrl);
                 return imageUrl;
             }
         } catch (error) {
-            console.log('External image API failed, using enhanced canvas:', error.message);
+            console.log('🌐 External image API failed:', error.message);
         }
 
-        // Fallback to enhanced canvas image
-        return this.getEnhancedDishImage(dishName);
+        // Final fallback to enhanced canvas image
+        console.log('🎨 Using enhanced canvas image for:', dishName);
+        const canvasImage = this.getEnhancedDishImage(dishName);
+        this.addToCache(cacheKey, canvasImage);
+        return canvasImage;
+    }
+
+    // Generate dish image using Gemini Imagen API
+    async generateDishImageWithAI(dishName) {
+        const prompt = this.createImagePrompt(dishName);
+        const imageEndpoint = `${this.baseURL}/models/${this.imageModel}:generateImage`;
+        
+        console.log('🎨 Calling Gemini Imagen API with prompt:', prompt);
+        
+        const response = await fetch(`${imageEndpoint}?key=${this.apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                prompt: prompt,
+                generationConfig: {
+                    aspectRatio: "4:3",
+                    negativePrompt: "blurry, low quality, cartoon, anime, drawing, sketch, ugly, distorted",
+                    personGeneration: "DONT_ALLOW"
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Imagen API error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const data = await response.json();
+        
+        // Extract image data from response
+        if (data.candidates && data.candidates.length > 0) {
+            const imageData = data.candidates[0];
+            
+            // Handle different response formats
+            if (imageData.image) {
+                // Base64 encoded image
+                return `data:image/jpeg;base64,${imageData.image}`;
+            } else if (imageData.uri) {
+                // Image URI
+                return imageData.uri;
+            } else if (imageData.mimeType && imageData.data) {
+                // MIME type with data
+                return `data:${imageData.mimeType};base64,${imageData.data}`;
+            }
+        }
+        
+        throw new Error('No valid image data in response');
+    }
+
+    // Create optimized prompt for dish image generation
+    createImagePrompt(dishName) {
+        const currentLang = window.i18n ? window.i18n.getCurrentLanguage() : 'en';
+        
+        // Base prompt for high-quality food photography
+        let basePrompt = currentLang === 'ja' ? 
+            `美味しそうな${dishName}の写真、プロの料理写真、高品質、美しい盛り付け、レストラン品質` :
+            `A beautiful, appetizing photo of ${dishName}, professional food photography, high quality, restaurant presentation`;
+        
+        // Add dish-specific details
+        const dishSpecific = this.getDishSpecificPrompt(dishName);
+        if (dishSpecific) {
+            basePrompt += `, ${dishSpecific}`;
+        }
+        
+        // Add general quality enhancers
+        const qualityEnhancers = currentLang === 'ja' ? 
+            '、自然光、鮮やかな色彩、食欲をそそる、プロの撮影' :
+            ', natural lighting, vibrant colors, appetizing, professional photography';
+        
+        return basePrompt + qualityEnhancers;
+    }
+
+    // Get dish-specific prompt details
+    getDishSpecificPrompt(dishName) {
+        const name = dishName.toLowerCase();
+        
+        const specificPrompts = {
+            'sushi': 'elegant presentation on wooden board, fresh ingredients, wasabi and ginger',
+            '寿司': 'elegant presentation on wooden board, fresh ingredients, wasabi and ginger',
+            'ramen': 'steaming hot bowl, rich broth, perfect noodles, green onions, egg',
+            'ラーメン': 'steaming hot bowl, rich broth, perfect noodles, green onions, egg',
+            'curry': 'aromatic spices, colorful vegetables, rice on side, steam rising',
+            'カレー': 'aromatic spices, colorful vegetables, rice on side, steam rising',
+            'pasta': 'al dente noodles, rich sauce, fresh herbs, parmesan cheese',
+            'パスタ': 'al dente noodles, rich sauce, fresh herbs, parmesan cheese',
+            'pizza': 'melted cheese, fresh toppings, crispy crust, wood-fired oven style',
+            'steak': 'perfectly grilled, juicy meat, grill marks, side vegetables',
+            'salad': 'fresh greens, colorful vegetables, light dressing, healthy presentation',
+            'サラダ': 'fresh greens, colorful vegetables, light dressing, healthy presentation',
+            'tempura': 'light crispy batter, golden color, dipping sauce, artistic plating',
+            '天ぷら': 'light crispy batter, golden color, dipping sauce, artistic plating'
+        };
+        
+        // Find matching dish
+        for (const [dish, prompt] of Object.entries(specificPrompts)) {
+            if (name.includes(dish)) {
+                return prompt;
+            }
+        }
+        
+        return 'beautifully plated, garnished, restaurant quality presentation';
+    }
+
+    // Cache management
+    addToCache(key, value) {
+        // Remove oldest entry if cache is full
+        if (this.imageCache.size >= this.maxCacheSize) {
+            const firstKey = this.imageCache.keys().next().value;
+            this.imageCache.delete(firstKey);
+        }
+        
+        this.imageCache.set(key, value);
+        console.log(`📦 Cached image for: ${key} (cache size: ${this.imageCache.size})`);
+    }
+
+    // Clear image cache
+    clearImageCache() {
+        this.imageCache.clear();
+        console.log('🗑️ Image cache cleared');
     }
 
     // Create taste analysis prompt
