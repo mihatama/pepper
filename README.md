@@ -5,10 +5,11 @@ A Progressive Web Application for creating custom pepper blend recipes using AI-
 ## 🌟 Features
 
 ### Core Functionality
-- **Manual Blend Creation**: Use interactive sliders to create custom flavor profiles
+- **Manual Blend Creation**: Use interactive sliders or directly drag radar chart points to create custom flavor profiles
+- **Interactive Radar Charts**: Click and drag chart points to adjust flavor values in real-time
 - **AI Taste Analysis**: Describe desired flavors in natural language and get AI-generated pepper blends
 - **Dish Recipe Enhancement**: Enter any dish name to generate images and enhance flavors with peppers
-- **Radar Chart Visualization**: Visual representation of flavor profiles using interactive charts
+- **Visual Flavor Profiles**: Interactive radar chart visualization with bidirectional synchronization
 
 ### Technical Features
 - **Progressive Web App (PWA)**: Install and use offline on any device
@@ -82,14 +83,18 @@ For detailed Netlify setup instructions, see [NETLIFY_SETUP.md](NETLIFY_SETUP.md
 ## 📖 Usage Guide
 
 ### Manual Blend Mode
-1. Adjust the five flavor sliders:
-   - **Spiciness**: Heat level
-   - **Aroma**: Fragrance intensity
-   - **Citrusy**: Citrus notes
-   - **Freshness**: Bright, fresh qualities
-   - **Depth**: Rich, complex flavors
-2. View the radar chart visualization
-3. Get the calculated pepper blend recipe
+1. **Two ways to adjust flavor profiles**:
+   - **Sliders**: Use the traditional sliders for precise numerical control
+   - **Interactive Radar Chart**: Click and drag any point on the radar chart to adjust values visually
+2. **Flavor dimensions**:
+   - **Spiciness**: Heat level (1-5)
+   - **Aroma**: Fragrance intensity (1-5)
+   - **Citrusy**: Citrus notes (1-5)
+   - **Freshness**: Bright, fresh qualities (1-5)
+   - **Depth**: Rich, complex flavors (1-5)
+3. **Real-time synchronization**: Changes in sliders update the chart, and dragging chart points updates the sliders
+4. **Automatic calculation**: Get the calculated pepper blend recipe instantly as you adjust values
+5. **Visual feedback**: The radar chart shape shows your flavor balance at a glance
 
 ### AI Taste Mode
 1. Click the microphone button or type your taste description
