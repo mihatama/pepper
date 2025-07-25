@@ -105,10 +105,24 @@ class GeminiAPI {
         }
     }
 
-    // Generate dish image using Canvas (Gemini API doesn't support image generation)
+    // Generate dish image using external API or enhanced Canvas
     async generateDishImage(dishName) {
-        // Always use Canvas-generated image since Gemini API doesn't support image generation
-        return this.getMockDishImage(dishName);
+        if (!this.apiKey || this.apiKey === 'YOUR_GEMINI_API_KEY_HERE') {
+            return this.getEnhancedDishImage(dishName);
+        }
+
+        try {
+            // Try to use a free image API first
+            const imageUrl = await this.fetchDishImageFromAPI(dishName);
+            if (imageUrl) {
+                return imageUrl;
+            }
+        } catch (error) {
+            console.log('External image API failed, using enhanced canvas:', error.message);
+        }
+
+        // Fallback to enhanced canvas image
+        return this.getEnhancedDishImage(dishName);
     }
 
     // Create taste analysis prompt
@@ -381,32 +395,85 @@ Please respond in the following JSON format:
         };
     }
 
-    getMockDishImage(dishName) {
-        // Use a more reliable image service or create a data URL
+    // Fetch dish image from external API
+    async fetchDishImageFromAPI(dishName) {
+        try {
+            // Use Unsplash API for food images (free, no API key required)
+            const query = encodeURIComponent(`${dishName} food dish`);
+            const response = await fetch(`https://source.unsplash.com/400x300/?${query}`, {
+                method: 'GET',
+                redirect: 'follow'
+            });
+            
+            if (response.ok) {
+                return response.url;
+            }
+        } catch (error) {
+            console.log('Unsplash API failed:', error.message);
+        }
+
+        try {
+            // Alternative: Use Foodish API for random food images
+            const response = await fetch('https://foodish-api.herokuapp.com/api/');
+            if (response.ok) {
+                const data = await response.json();
+                return data.image;
+            }
+        } catch (error) {
+            console.log('Foodish API failed:', error.message);
+        }
+
+        return null;
+    }
+
+    // Enhanced Canvas image generation
+    getEnhancedDishImage(dishName) {
         const canvas = document.createElement('canvas');
         canvas.width = 400;
         canvas.height = 300;
         const ctx = canvas.getContext('2d');
         
-        // Create a gradient background
-        const gradient = ctx.createLinearGradient(0, 0, 400, 300);
-        gradient.addColorStop(0, '#667eea');
-        gradient.addColorStop(1, '#764ba2');
+        // Create a more sophisticated gradient based on dish type
+        const dishType = this.getDishType(dishName);
+        const colors = this.getDishColors(dishType);
+        
+        const gradient = ctx.createRadialGradient(200, 150, 0, 200, 150, 200);
+        gradient.addColorStop(0, colors.primary);
+        gradient.addColorStop(0.7, colors.secondary);
+        gradient.addColorStop(1, colors.tertiary);
         
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 400, 300);
         
-        // Add text
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 24px Arial';
+        // Add subtle pattern overlay
+        this.addPatternOverlay(ctx, dishType);
+        
+        // Add decorative border
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(10, 10, 380, 280);
+        
+        // Add dish-specific emoji
+        const emoji = this.getDishEmoji(dishName);
+        ctx.font = '64px Arial';
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(emoji, 200, 120);
+        
+        // Add dish name with better typography
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
         
         // Split long dish names into multiple lines
         const maxWidth = 350;
         const words = dishName.split(' ');
         let lines = [];
-        let currentLine = words[0];
+        let currentLine = words[0] || dishName;
+        
+        ctx.font = 'bold 28px Arial';
         
         for (let i = 1; i < words.length; i++) {
             const word = words[i];
@@ -420,19 +487,152 @@ Please respond in the following JSON format:
         }
         lines.push(currentLine);
         
-        // Draw text lines
-        const lineHeight = 30;
-        const startY = 150 - (lines.length - 1) * lineHeight / 2;
+        // Draw text lines with better spacing
+        const lineHeight = 35;
+        const startY = 200 - (lines.length - 1) * lineHeight / 2;
         
         lines.forEach((line, index) => {
             ctx.fillText(line, 200, startY + index * lineHeight);
         });
         
-        // Add food emoji
-        ctx.font = '48px Arial';
-        ctx.fillText('🍽️', 200, 100);
+        // Add subtitle
+        ctx.font = '16px Arial';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillText('AI Generated Dish Profile', 200, 260);
+        
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
         
         return canvas.toDataURL('image/png');
+    }
+
+    // Determine dish type for styling
+    getDishType(dishName) {
+        const name = dishName.toLowerCase();
+        
+        if (name.includes('curry') || name.includes('カレー') || name.includes('spicy')) {
+            return 'spicy';
+        } else if (name.includes('sushi') || name.includes('寿司') || name.includes('sashimi')) {
+            return 'japanese';
+        } else if (name.includes('pasta') || name.includes('pizza') || name.includes('パスタ')) {
+            return 'italian';
+        } else if (name.includes('salad') || name.includes('サラダ') || name.includes('fresh')) {
+            return 'fresh';
+        } else if (name.includes('steak') || name.includes('meat') || name.includes('肉')) {
+            return 'meat';
+        } else if (name.includes('soup') || name.includes('stew') || name.includes('シチュー')) {
+            return 'soup';
+        } else {
+            return 'general';
+        }
+    }
+
+    // Get color scheme based on dish type
+    getDishColors(dishType) {
+        const colorSchemes = {
+            spicy: {
+                primary: '#ff6b6b',
+                secondary: '#ee5a24',
+                tertiary: '#c44569'
+            },
+            japanese: {
+                primary: '#74b9ff',
+                secondary: '#0984e3',
+                tertiary: '#6c5ce7'
+            },
+            italian: {
+                primary: '#fdcb6e',
+                secondary: '#e17055',
+                tertiary: '#d63031'
+            },
+            fresh: {
+                primary: '#00b894',
+                secondary: '#00cec9',
+                tertiary: '#55a3ff'
+            },
+            meat: {
+                primary: '#a29bfe',
+                secondary: '#6c5ce7',
+                tertiary: '#fd79a8'
+            },
+            soup: {
+                primary: '#fdcb6e',
+                secondary: '#f39c12',
+                tertiary: '#e17055'
+            },
+            general: {
+                primary: '#667eea',
+                secondary: '#764ba2',
+                tertiary: '#f093fb'
+            }
+        };
+        
+        return colorSchemes[dishType] || colorSchemes.general;
+    }
+
+    // Add pattern overlay for visual interest
+    addPatternOverlay(ctx, dishType) {
+        ctx.globalAlpha = 0.1;
+        ctx.fillStyle = '#ffffff';
+        
+        // Create different patterns based on dish type
+        if (dishType === 'japanese') {
+            // Wave pattern
+            for (let i = 0; i < 400; i += 20) {
+                ctx.beginPath();
+                ctx.arc(i, Math.sin(i * 0.02) * 50 + 150, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        } else if (dishType === 'italian') {
+            // Dots pattern
+            for (let x = 0; x < 400; x += 30) {
+                for (let y = 0; y < 300; y += 30) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        } else {
+            // Default geometric pattern
+            for (let i = 0; i < 10; i++) {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + i * 0.01})`;
+                ctx.lineWidth = 1;
+                ctx.strokeRect(i * 40, i * 30, 400 - i * 80, 300 - i * 60);
+            }
+        }
+        
+        ctx.globalAlpha = 1;
+    }
+
+    // Get appropriate emoji for dish
+    getDishEmoji(dishName) {
+        const name = dishName.toLowerCase();
+        
+        if (name.includes('curry') || name.includes('カレー')) return '🍛';
+        if (name.includes('sushi') || name.includes('寿司')) return '🍣';
+        if (name.includes('ramen') || name.includes('ラーメン')) return '🍜';
+        if (name.includes('pizza')) return '🍕';
+        if (name.includes('pasta') || name.includes('パスタ')) return '🍝';
+        if (name.includes('burger') || name.includes('ハンバーガー')) return '🍔';
+        if (name.includes('steak') || name.includes('meat')) return '🥩';
+        if (name.includes('chicken') || name.includes('鶏')) return '🍗';
+        if (name.includes('fish') || name.includes('魚')) return '🐟';
+        if (name.includes('salad') || name.includes('サラダ')) return '🥗';
+        if (name.includes('soup') || name.includes('スープ')) return '🍲';
+        if (name.includes('rice') || name.includes('ご飯')) return '🍚';
+        if (name.includes('bread') || name.includes('パン')) return '🍞';
+        if (name.includes('cake') || name.includes('ケーキ')) return '🍰';
+        if (name.includes('ice cream') || name.includes('アイス')) return '🍦';
+        
+        return '🍽️'; // Default
+    }
+
+    getMockDishImage(dishName) {
+        // Fallback to enhanced image generation
+        return this.getEnhancedDishImage(dishName);
     }
 
     // Utility method to check if API is configured

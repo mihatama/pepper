@@ -23,7 +23,7 @@ class RadarChart {
             ],
             datasets: [{
                 label: 'Flavor Profile',
-                data: [50, 50, 50, 50, 50],
+                data: [3, 3, 3, 3, 3],
                 backgroundColor: 'rgba(102, 126, 234, 0.2)',
                 borderColor: 'rgba(102, 126, 234, 1)',
                 borderWidth: 2,
@@ -45,10 +45,10 @@ class RadarChart {
                 scales: {
                     r: {
                         beginAtZero: true,
-                        max: 100,
-                        min: 0,
+                        max: 5,
+                        min: 1,
                         ticks: {
-                            stepSize: 20,
+                            stepSize: 1,
                             color: '#666',
                             font: {
                                 size: 12
@@ -81,7 +81,7 @@ class RadarChart {
                         borderWidth: 1,
                         callbacks: {
                             label: function(context) {
-                                return `${context.label}: ${context.parsed.r}%`;
+                                return `${context.label}: ${context.parsed.r}`;
                             }
                         }
                     }
@@ -162,7 +162,7 @@ class RadarChart {
     }
 
     getData() {
-        return this.chart ? this.chart.data.datasets[0].data : [50, 50, 50, 50, 50];
+        return this.chart ? this.chart.data.datasets[0].data : [3, 3, 3, 3, 3];
     }
 
     destroy() {

@@ -82,14 +82,15 @@ class PepperCraftApp {
         
         this.currentProfile = profile;
         
-        // Update radar chart
+        // Update radar chart (1-5 scale)
         if (window.chartManager) {
             window.chartManager.updateChart('manual', profile);
         }
         
-        // Calculate and display blend
+        // Calculate and display blend (convert to 0-100 scale for calculation)
         if (window.pepperCalculator) {
-            const blend = window.pepperCalculator.calculateBlend(profile);
+            const scaledProfile = profile.map(value => (value - 1) * 25); // Convert 1-5 to 0-100
+            const blend = window.pepperCalculator.calculateBlend(scaledProfile);
             this.displayBlend(blend, 'pepperResult');
         }
     }
@@ -244,16 +245,63 @@ class PepperCraftApp {
         });
     }
 
-    // Display dish image
+    // Display dish image with enhanced loading and error handling
     displayDishImage(imageUrl, dishName) {
         const container = document.getElementById('dishImageContainer');
-        if (container) {
-            if (imageUrl.startsWith('data:') || imageUrl.startsWith('http')) {
-                container.innerHTML = `<img src="${imageUrl}" alt="${dishName}" class="dish-image">`;
-            } else {
-                // Handle base64 data
-                container.innerHTML = `<img src="data:image/jpeg;base64,${imageUrl}" alt="${dishName}" class="dish-image">`;
-            }
+        if (!container) return;
+
+        // Show loading state
+        container.classList.add('loading');
+        container.innerHTML = '<div class="image-placeholder">Loading image...</div>';
+
+        // Create image element
+        const img = document.createElement('img');
+        img.className = 'dish-image';
+        img.alt = dishName;
+        
+        // Handle image load success
+        img.onload = () => {
+            container.classList.remove('loading');
+            container.innerHTML = '';
+            container.appendChild(img);
+            
+            // Add fade-in animation
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => {
+                img.style.opacity = '1';
+            }, 100);
+        };
+        
+        // Handle image load error
+        img.onerror = () => {
+            container.classList.remove('loading');
+            console.log('Image failed to load, generating fallback...');
+            
+            // Generate fallback canvas image
+            const fallbackUrl = window.geminiAPI.getEnhancedDishImage(dishName);
+            const fallbackImg = document.createElement('img');
+            fallbackImg.className = 'dish-image';
+            fallbackImg.alt = dishName;
+            fallbackImg.src = fallbackUrl;
+            
+            container.innerHTML = '';
+            container.appendChild(fallbackImg);
+            
+            // Add fade-in animation
+            fallbackImg.style.opacity = '0';
+            fallbackImg.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => {
+                fallbackImg.style.opacity = '1';
+            }, 100);
+        };
+        
+        // Set image source
+        if (imageUrl.startsWith('data:') || imageUrl.startsWith('http')) {
+            img.src = imageUrl;
+        } else {
+            // Handle base64 data
+            img.src = `data:image/jpeg;base64,${imageUrl}`;
         }
     }
 
