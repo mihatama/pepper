@@ -74,5 +74,9 @@
     "manual": "Adjust the sliders to create your desired flavor profile. The pepper blend will be calculated automatically.",
     "aiTaste": "Describe the taste you want using voice or text input. Our AI will analyze and create the perfect pepper blend.",
     "dish": "Enter a dish name and we'll generate an image, analyze its flavor profile, and suggest peppers to enhance it."
+  },
+  "chart": {
+    "dragHint": "📱 Drag to adjust",
+    "dragHintJa": "📱 ドラッグして調整"
   }
 }

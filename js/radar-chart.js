@@ -348,18 +348,30 @@ class RadarChart {
         const centerX = (chartArea.left + chartArea.right) / 2;
         const centerY = (chartArea.top + chartArea.bottom) / 2;
         
-        // Calculate distance from center
-        const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+        // Calculate the angle for this point (starting from top, going clockwise)
+        const anglePerPoint = (2 * Math.PI) / 5; // 5 points
+        const pointAngle = (pointIndex * anglePerPoint) - (Math.PI / 2); // Start from top
         
-        // Get the maximum radius (distance from center to edge)
+        // Calculate the direction vector from center to the point
+        const directionX = Math.cos(pointAngle);
+        const directionY = Math.sin(pointAngle);
+        
+        // Calculate the projection of mouse position onto the direction vector
+        const mouseVectorX = x - centerX;
+        const mouseVectorY = y - centerY;
+        
+        // Project mouse vector onto the direction vector
+        const projection = (mouseVectorX * directionX + mouseVectorY * directionY);
+        
+        // Get the maximum radius for value 5
         const maxRadius = Math.min(
             (chartArea.right - chartArea.left) / 2,
             (chartArea.bottom - chartArea.top) / 2
         ) * 0.8; // 80% of available space
         
-        // Convert distance to value (1-5 scale)
-        const normalizedDistance = Math.min(distance / maxRadius, 1);
-        const value = Math.round(1 + (normalizedDistance * 4)); // Convert to 1-5 scale
+        // Convert projection to value (1-5 scale)
+        const normalizedProjection = Math.max(0, Math.min(1, projection / maxRadius));
+        const value = Math.round(1 + (normalizedProjection * 4)); // Convert to 1-5 scale
         
         return Math.max(1, Math.min(5, value));
     }
