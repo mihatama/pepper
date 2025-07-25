@@ -613,9 +613,12 @@ Please respond in the following JSON format:
             profile[4] = 85;
         }
 
+        // Convert 0-100 scale to 1-5 scale for consistency
+        const convertTo1to5 = (value) => Math.max(1, Math.min(5, Math.round((value / 100) * 4 + 1)));
+        
         return {
-            profile: profile,
-            analysis: 'Mock analysis based on keywords'
+            profile: profile.map(convertTo1to5),
+            analysis: 'Mock analysis based on keywords (using White Pepper blend)'
         };
     }
 

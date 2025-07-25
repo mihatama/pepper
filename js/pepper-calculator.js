@@ -2,13 +2,13 @@
 class PepperCalculator {
     constructor() {
         this.pepperTypes = {
-            red: {
-                name: 'red',
-                spiciness: 0.8,
-                aroma: 0.6,
-                citrusy: 0.3,
-                freshness: 0.2,
-                depth: 0.7
+            white: {
+                name: 'white',
+                spiciness: 0.6,
+                aroma: 0.7,
+                citrusy: 0.2,
+                freshness: 0.4,
+                depth: 0.8
             },
             pink: {
                 name: 'pink',
@@ -330,7 +330,7 @@ class PepperCalculator {
     // Get pepper characteristics description
     getPepperCharacteristics(pepperName) {
         const characteristics = {
-            red: 'Hot and pungent with fruity notes',
+            white: 'Mild and aromatic with subtle heat and earthy depth',
             pink: 'Mild and aromatic with citrusy sweetness',
             black: 'Sharp and woody with earthy depth',
             green: 'Fresh and bright with herbaceous notes',

@@ -281,7 +281,7 @@ class PepperCraftApp {
     calculatePepperContribution(enhancementNeeded) {
         // ペッパーの種類ごとの味への貢献度（1-5スケール）
         const pepperProfiles = {
-            red: [4, 3, 1, 2, 4],      // 辛味、香り、酸味、フレッシュ感、深み
+            white: [3, 4, 1, 2, 4],    // マイルドな辛味、香り、深み
             pink: [2, 4, 3, 4, 2],     // マイルドで香り高い
             black: [3, 5, 2, 2, 5],    // 深い香りと複雑さ
             green: [2, 3, 4, 5, 3],    // フレッシュで酸味

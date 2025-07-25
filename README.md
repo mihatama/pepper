@@ -122,7 +122,7 @@ Switch languages using the toggle button in the header.
 
 The app calculates blends using five pepper types:
 
-1. **Red Pepper**: High spiciness and depth
+1. **White Pepper**: Mild spiciness with aromatic depth
 2. **Pink Pepper**: Aromatic with citrusy notes
 3. **Black Pepper**: Classic spiciness with earthy depth
 4. **Green Pepper**: Fresh and bright
@@ -172,12 +172,12 @@ if (totalScore <= 15) {
 
 ```javascript
 const pepperProfiles = {
-    redPepper: {
-        spiciness: 0.8,   // 高い辛味
-        aroma: 0.6,       // 中程度の香り
-        citrusy: 0.3,     // 低い酸味
-        freshness: 0.2,   // 低いフレッシュ感
-        depth: 0.7        // 高い深み
+    whitePepper: {
+        spiciness: 0.6,   // マイルドな辛味
+        aroma: 0.7,       // 高い香り
+        citrusy: 0.2,     // 低い酸味
+        freshness: 0.4,   // 中程度のフレッシュ感
+        depth: 0.8        // 高い深み
     },
     pinkPepper: {
         spiciness: 0.3,   // 低い辛味
@@ -321,7 +321,7 @@ AI分析結果:
 - 深み: 95 (「複雑」「肉料理」で高値)
 
 計算されるブレンド:
-- レッドペッパー: 35% (辛味と深みが高い)
+- ホワイトペッパー: 35% (マイルドな辛味と深みが高い)
 - ブラックペッパー: 25% (辛味と深み)
 - ピンクペッパー: 20% (香り)
 - コリアンダー: 15% (香りと深み)
