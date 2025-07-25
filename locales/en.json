@@ -14,8 +14,7 @@
   "depth": "Depth",
   "totalAmount": "Total Amount",
   "result": {
-    "title": "Pepper Blend Recipe",
-    "instructions": "Mix all ingredients thoroughly. Store in an airtight container."
+    "title": "Pepper Blend Recipe"
   },
   "aiTaste": {
     "title": "Describe Your Desired Taste",

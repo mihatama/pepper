@@ -263,8 +263,7 @@ class PepperCalculator {
 
     // Get blend instructions
     getInstructions() {
-        return window.i18n ? window.i18n.t('result.instructions') : 
-               'Mix all ingredients thoroughly. Store in an airtight container.';
+        return ''; // Instructions removed as requested
     }
 
     // Analyze flavor profile and suggest improvements
