@@ -157,6 +157,7 @@ class GeminiAPI {
         const prompt = this.createImagePrompt(dishName);
         
         console.log('🎨 Calling Gemini Imagen API with prompt:', prompt);
+        console.log('🔧 Using simplified API call without negativePrompt');
         
         try {
             // Check if we're in a browser environment that supports fetch with proper CORS
@@ -164,9 +165,7 @@ class GeminiAPI {
                 throw new Error('Not in browser environment');
             }
             
-            // Use the correct Imagen API endpoint according to the official documentation
-            const imageEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.imageModel}:predict`;
-            
+            // Use the simplified Imagen API call
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImage?key=${this.apiKey}`, {
                 method: 'POST',
                 headers: {
@@ -183,6 +182,34 @@ class GeminiAPI {
             if (!response.ok) {
                 const errorText = await response.text();
                 console.log('🚨 Imagen API response error:', response.status, errorText);
+                
+                // If it's still a negativePrompt error, try even simpler request
+                if (errorText.includes('negativePrompt')) {
+                    console.log('🔧 Trying minimal API request...');
+                    const minimalResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImage?key=${this.apiKey}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            prompt: prompt
+                        })
+                    });
+                    
+                    if (minimalResponse.ok) {
+                        const minimalData = await minimalResponse.json();
+                        console.log('🎨 Minimal Imagen API response:', minimalData);
+                        
+                        if (minimalData.candidates && minimalData.candidates.length > 0) {
+                            const candidate = minimalData.candidates[0];
+                            if (candidate.imageBytes) {
+                                console.log('✅ Minimal Imagen API success');
+                                return `data:image/png;base64,${candidate.imageBytes}`;
+                            }
+                        }
+                    }
+                }
+                
                 throw new Error(`Imagen API error! status: ${response.status}, message: ${errorText}`);
             }
 
@@ -216,6 +243,9 @@ class GeminiAPI {
                 console.log('💡 Imagen API may not be available from browser environments');
                 console.log('💡 Note: Imagen API requires paid plan and may have regional restrictions');
                 console.log('💡 Falling back to alternative image sources...');
+            } else if (error.message.includes('negativePrompt')) {
+                console.log('💡 negativePrompt parameter is no longer supported by Imagen API');
+                console.log('💡 This error should be resolved with the updated code');
             }
             
             throw error;
