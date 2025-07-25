@@ -167,24 +167,16 @@ class GeminiAPI {
             // Use the correct Imagen API endpoint according to the official documentation
             const imageEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.imageModel}:predict`;
             
-            const response = await fetch(`${imageEndpoint}?key=${this.apiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImage?key=${this.apiKey}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
                 },
-                mode: 'cors', // Explicitly set CORS mode
                 body: JSON.stringify({
-                    instances: [
-                        {
-                            prompt: prompt
-                        }
-                    ],
-                    parameters: {
-                        sampleCount: 1,
-                        aspectRatio: "4:3",
-                        personGeneration: "dont_allow"
-                    }
+                    prompt: prompt,
+                    aspectRatio: "1:1",
+                    safetyFilterLevel: "BLOCK_ONLY_HIGH",
+                    personGeneration: "DONT_ALLOW"
                 })
             });
 
@@ -198,18 +190,18 @@ class GeminiAPI {
             console.log('🎨 Imagen API response:', data);
             
             // Extract image data from response according to the new format
-            if (data.predictions && data.predictions.length > 0) {
-                const prediction = data.predictions[0];
+            if (data.candidates && data.candidates.length > 0) {
+                const candidate = data.candidates[0];
                 
                 // Handle different response formats
-                if (prediction.bytesBase64Encoded) {
+                if (candidate.imageBytes) {
                     // Base64 encoded image
                     console.log('✅ Imagen API success: Base64 image received');
-                    return `data:image/png;base64,${prediction.bytesBase64Encoded}`;
-                } else if (prediction.mimeType && prediction.bytesBase64Encoded) {
+                    return `data:image/png;base64,${candidate.imageBytes}`;
+                } else if (candidate.mimeType && candidate.imageBytes) {
                     // MIME type with data
                     console.log('✅ Imagen API success: MIME data received');
-                    return `data:${prediction.mimeType};base64,${prediction.bytesBase64Encoded}`;
+                    return `data:${candidate.mimeType};base64,${candidate.imageBytes}`;
                 }
             }
             
