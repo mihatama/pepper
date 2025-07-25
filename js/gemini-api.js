@@ -183,7 +183,6 @@ class GeminiAPI {
                     parameters: {
                         sampleCount: 1,
                         aspectRatio: "4:3",
-                        negativePrompt: "blurry, low quality, cartoon, anime, drawing, sketch, ugly, distorted",
                         personGeneration: "dont_allow"
                     }
                 })
