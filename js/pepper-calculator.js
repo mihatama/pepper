@@ -249,9 +249,9 @@ class PepperCalculator {
     // Get unit symbol
     getUnitSymbol(unit) {
         const symbols = {
-            'grams': window.i18n ? window.i18n.t('units.grams') : 'g',
-            'teaspoons': window.i18n ? window.i18n.t('units.teaspoons') : 'tsp',
-            'tablespoons': window.i18n ? window.i18n.t('units.tablespoons') : 'tbsp'
+            'grams': 'g',
+            'teaspoons': 'tsp',
+            'tablespoons': 'tbsp'
         };
         return symbols[unit] || 'g';
     }
