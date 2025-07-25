@@ -126,6 +126,11 @@ class PepperCraftApp {
         try {
             const result = await window.geminiAPI.analyzeTaste(description);
             
+            console.log('AI Taste Analysis Result:', result); // Debug log
+            
+            // Update current profile for AI taste
+            this.currentProfile = result.profile;
+            
             // Update AI radar chart
             if (window.chartManager) {
                 window.chartManager.updateChart('aiTaste', result.profile);
@@ -134,7 +139,11 @@ class PepperCraftApp {
             // Calculate and display blend
             if (window.pepperCalculator) {
                 const blend = window.pepperCalculator.calculateBlend(result.profile);
+                console.log('Calculated Blend:', blend); // Debug log
                 this.displayBlend(blend, 'aiPepperResult');
+                this.currentBlend = blend; // Store current blend
+            } else {
+                console.error('pepperCalculator not available');
             }
             
             this.showSuccess(window.i18n ? window.i18n.t('success.tasteAnalyzed') : 'Taste analyzed successfully!');

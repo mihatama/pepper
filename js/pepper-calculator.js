@@ -44,11 +44,48 @@ class PepperCalculator {
             }
         };
         
-        this.baseAmount = 100; // Base amount in grams
+        this.baseAmount = 10; // Base amount in grams (will be calculated dynamically)
+        
+        // Dynamic amount calculation based on flavor intensity
+        this.minAmount = 6;   // When total flavor score is 5 (all 1s)
+        this.midAmount = 10;  // When total flavor score is 15 (all 3s)
+        this.maxAmount = 14;  // When total flavor score is 25 (all 5s)
+    }
+
+    // Calculate dynamic base amount based on flavor intensity (1-5 scale)
+    calculateDynamicAmount(flavorProfile) {
+        // Convert 0-100 scale to 1-5 scale for calculation
+        const scaledProfile = flavorProfile.map(value => Math.max(1, Math.min(5, Math.round(value / 20))));
+        const totalScore = scaledProfile.reduce((sum, val) => sum + val, 0);
+        
+        console.log('Scaled Profile (1-5):', scaledProfile, 'Total Score:', totalScore);
+        
+        // Linear interpolation between min, mid, and max amounts
+        let dynamicAmount;
+        
+        if (totalScore <= 15) {
+            // Linear interpolation between minAmount (score 5) and midAmount (score 15)
+            const ratio = (totalScore - 5) / (15 - 5);
+            dynamicAmount = this.minAmount + (this.midAmount - this.minAmount) * ratio;
+        } else {
+            // Linear interpolation between midAmount (score 15) and maxAmount (score 25)
+            const ratio = (totalScore - 15) / (25 - 15);
+            dynamicAmount = this.midAmount + (this.maxAmount - this.midAmount) * ratio;
+        }
+        
+        // Ensure amount is within bounds
+        dynamicAmount = Math.max(this.minAmount, Math.min(this.maxAmount, dynamicAmount));
+        
+        console.log('Dynamic Amount:', dynamicAmount.toFixed(1) + 'g');
+        
+        return Math.round(dynamicAmount * 10) / 10; // Round to 1 decimal place
     }
 
     // Calculate pepper blend based on flavor profile
     calculateBlend(flavorProfile) {
+        // Calculate dynamic base amount based on flavor intensity
+        this.baseAmount = this.calculateDynamicAmount(flavorProfile);
+        
         // Normalize flavor profile to 0-1 scale
         const normalizedProfile = flavorProfile.map(value => value / 100);
         
