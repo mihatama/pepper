@@ -87,8 +87,9 @@ class PepperCraftApp {
             window.chartManager.updateChart('manual', profile);
         }
         
-        // Calculate and display blend (convert to 0-100 scale for calculation)
+        // Calculate and display blend (profile is already 1-5 scale)
         if (window.pepperCalculator) {
+            // Convert 1-5 scale to 0-100 scale for pepper calculation
             const scaledProfile = profile.map(value => (value - 1) * 25); // Convert 1-5 to 0-100
             const blend = window.pepperCalculator.calculateBlend(scaledProfile);
             this.displayBlend(blend, 'pepperResult');
@@ -137,9 +138,11 @@ class PepperCraftApp {
                 window.chartManager.updateChart('aiTaste', result.profile);
             }
             
-            // Calculate and display blend
+            // Calculate and display blend (result.profile is already 1-5 scale)
             if (window.pepperCalculator) {
-                const blend = window.pepperCalculator.calculateBlend(result.profile);
+                // Convert 1-5 scale to 0-100 scale for pepper calculation
+                const scaledProfile = result.profile.map(value => (value - 1) * 25);
+                const blend = window.pepperCalculator.calculateBlend(scaledProfile);
                 console.log('Calculated Blend:', blend); // Debug log
                 this.displayBlend(blend, 'aiPepperResult');
                 this.currentBlend = blend; // Store current blend
@@ -230,7 +233,9 @@ class PepperCraftApp {
             );
             
             if (window.pepperCalculator) {
-                const blend = window.pepperCalculator.calculateBlend(enhancementNeeded);
+                // Convert 1-5 scale to 0-100 scale for pepper calculation
+                const scaledEnhancement = enhancementNeeded.map(value => value * 25);
+                const blend = window.pepperCalculator.calculateBlend(scaledEnhancement);
                 this.displayBlend(blend, 'dishPepperResult');
             }
             

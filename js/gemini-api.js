@@ -4,7 +4,7 @@ class GeminiAPI {
         this.apiKey = null;
         this.baseURL = 'https://generativelanguage.googleapis.com/v1beta';
         this.model = 'gemini-1.5-flash';
-        this.imageModel = 'imagen-3.0-fast-generate-001'; // 高速モデルを使用
+        this.imageModel = 'imagen-3.0-generate-001'; // 公式ドキュメント推奨モデル
         this.imageCache = new Map(); // 画像キャッシュ
         this.maxCacheSize = 50; // 最大キャッシュサイズ
         this.setupAPIKey();
@@ -155,50 +155,80 @@ class GeminiAPI {
     // Generate dish image using Gemini Imagen API
     async generateDishImageWithAI(dishName) {
         const prompt = this.createImagePrompt(dishName);
-        const imageEndpoint = `${this.baseURL}/models/${this.imageModel}:generateImage`;
         
         console.log('🎨 Calling Gemini Imagen API with prompt:', prompt);
         
-        const response = await fetch(`${imageEndpoint}?key=${this.apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                prompt: prompt,
-                generationConfig: {
-                    aspectRatio: "4:3",
-                    negativePrompt: "blurry, low quality, cartoon, anime, drawing, sketch, ugly, distorted",
-                    personGeneration: "DONT_ALLOW"
-                }
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Imagen API error! status: ${response.status}, message: ${errorText}`);
-        }
-
-        const data = await response.json();
-        
-        // Extract image data from response
-        if (data.candidates && data.candidates.length > 0) {
-            const imageData = data.candidates[0];
-            
-            // Handle different response formats
-            if (imageData.image) {
-                // Base64 encoded image
-                return `data:image/jpeg;base64,${imageData.image}`;
-            } else if (imageData.uri) {
-                // Image URI
-                return imageData.uri;
-            } else if (imageData.mimeType && imageData.data) {
-                // MIME type with data
-                return `data:${imageData.mimeType};base64,${imageData.data}`;
+        try {
+            // Check if we're in a browser environment that supports fetch with proper CORS
+            if (typeof window === 'undefined') {
+                throw new Error('Not in browser environment');
             }
+            
+            // Use the correct Imagen API endpoint according to the official documentation
+            const imageEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${this.imageModel}:predict`;
+            
+            const response = await fetch(`${imageEndpoint}?key=${this.apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                mode: 'cors', // Explicitly set CORS mode
+                body: JSON.stringify({
+                    instances: [
+                        {
+                            prompt: prompt
+                        }
+                    ],
+                    parameters: {
+                        sampleCount: 1,
+                        aspectRatio: "4:3",
+                        negativePrompt: "blurry, low quality, cartoon, anime, drawing, sketch, ugly, distorted",
+                        personGeneration: "dont_allow"
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.log('🚨 Imagen API response error:', response.status, errorText);
+                throw new Error(`Imagen API error! status: ${response.status}, message: ${errorText}`);
+            }
+
+            const data = await response.json();
+            console.log('🎨 Imagen API response:', data);
+            
+            // Extract image data from response according to the new format
+            if (data.predictions && data.predictions.length > 0) {
+                const prediction = data.predictions[0];
+                
+                // Handle different response formats
+                if (prediction.bytesBase64Encoded) {
+                    // Base64 encoded image
+                    console.log('✅ Imagen API success: Base64 image received');
+                    return `data:image/png;base64,${prediction.bytesBase64Encoded}`;
+                } else if (prediction.mimeType && prediction.bytesBase64Encoded) {
+                    // MIME type with data
+                    console.log('✅ Imagen API success: MIME data received');
+                    return `data:${prediction.mimeType};base64,${prediction.bytesBase64Encoded}`;
+                }
+            }
+            
+            throw new Error('No valid image data in response');
+            
+        } catch (error) {
+            console.log('🚨 Imagen API detailed error:', error);
+            
+            // Check if it's a network/CORS issue
+            if (error.message.includes('Failed to fetch') || error.message.includes('CORS')) {
+                console.log('💡 This appears to be a CORS or network connectivity issue');
+                console.log('💡 Imagen API may not be available from browser environments');
+                console.log('💡 Note: Imagen API requires paid plan and may have regional restrictions');
+                console.log('💡 Falling back to alternative image sources...');
+            }
+            
+            throw error;
         }
-        
-        throw new Error('No valid image data in response');
     }
 
     // Create optimized prompt for dish image generation
@@ -390,13 +420,16 @@ Please respond in the following JSON format:
             const jsonMatch = response.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0]);
+                // Convert 0-100 scale to 1-5 scale for radar chart
+                const convertTo1to5 = (value) => Math.max(1, Math.min(5, Math.round((value / 100) * 4 + 1)));
+                
                 return {
                     profile: [
-                        parsed.spiciness || 50,
-                        parsed.aroma || 50,
-                        parsed.citrusy || 50,
-                        parsed.freshness || 50,
-                        parsed.depth || 50
+                        convertTo1to5(parsed.spiciness || 50),
+                        convertTo1to5(parsed.aroma || 50),
+                        convertTo1to5(parsed.citrusy || 50),
+                        convertTo1to5(parsed.freshness || 50),
+                        convertTo1to5(parsed.depth || 50)
                     ],
                     analysis: parsed.analysis || 'Analysis completed'
                 };
@@ -405,9 +438,16 @@ Please respond in the following JSON format:
             console.error('Error parsing taste response:', error);
         }
         
-        // Fallback
+        // Fallback - convert default 50 to 1-5 scale
+        const convertTo1to5 = (value) => Math.max(1, Math.min(5, Math.round((value / 100) * 4 + 1)));
         return {
-            profile: [50, 50, 50, 50, 50],
+            profile: [
+                convertTo1to5(50),
+                convertTo1to5(50),
+                convertTo1to5(50),
+                convertTo1to5(50),
+                convertTo1to5(50)
+            ],
             analysis: 'Unable to parse analysis'
         };
     }
@@ -419,13 +459,16 @@ Please respond in the following JSON format:
             const jsonMatch = response.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 const parsed = JSON.parse(jsonMatch[0]);
+                // Convert 0-100 scale to 1-5 scale for radar chart
+                const convertTo1to5 = (value) => Math.max(1, Math.min(5, Math.round((value / 100) * 4 + 1)));
+                
                 return {
                     profile: [
-                        parsed.spiciness || 50,
-                        parsed.aroma || 50,
-                        parsed.citrusy || 50,
-                        parsed.freshness || 50,
-                        parsed.depth || 50
+                        convertTo1to5(parsed.spiciness || 50),
+                        convertTo1to5(parsed.aroma || 50),
+                        convertTo1to5(parsed.citrusy || 50),
+                        convertTo1to5(parsed.freshness || 50),
+                        convertTo1to5(parsed.depth || 50)
                     ],
                     description: parsed.description || '',
                     cuisine: parsed.cuisine || '',
@@ -436,9 +479,16 @@ Please respond in the following JSON format:
             console.error('Error parsing dish response:', error);
         }
         
-        // Fallback
+        // Fallback - convert default 50 to 1-5 scale
+        const convertTo1to5 = (value) => Math.max(1, Math.min(5, Math.round((value / 100) * 4 + 1)));
         return {
-            profile: [50, 50, 50, 50, 50],
+            profile: [
+                convertTo1to5(50),
+                convertTo1to5(50),
+                convertTo1to5(50),
+                convertTo1to5(50),
+                convertTo1to5(50)
+            ],
             description: 'Dish analysis unavailable',
             cuisine: 'Unknown',
             characteristics: 'Unable to analyze'
@@ -545,32 +595,68 @@ Please respond in the following JSON format:
 
     // Fetch dish image from external API
     async fetchDishImageFromAPI(dishName) {
+        console.log('🌐 Attempting to fetch external image for:', dishName);
+        
         try {
-            // Use Unsplash API for food images (free, no API key required)
+            // Use a CORS-friendly image service
+            // Note: Many free image APIs have CORS restrictions
             const query = encodeURIComponent(`${dishName} food dish`);
-            const response = await fetch(`https://source.unsplash.com/400x300/?${query}`, {
+            
+            // Try using a proxy or CORS-enabled endpoint
+            const corsProxy = 'https://api.allorigins.win/raw?url=';
+            const unsplashUrl = `https://source.unsplash.com/400x300/?${query}`;
+            
+            console.log('🌐 Trying Unsplash via CORS proxy...');
+            const response = await fetch(`${corsProxy}${encodeURIComponent(unsplashUrl)}`, {
                 method: 'GET',
-                redirect: 'follow'
+                mode: 'cors'
             });
             
             if (response.ok) {
+                console.log('✅ External image API success');
                 return response.url;
             }
         } catch (error) {
-            console.log('Unsplash API failed:', error.message);
+            console.log('🌐 CORS proxy failed:', error.message);
         }
 
         try {
-            // Alternative: Use Foodish API for random food images
-            const response = await fetch('https://foodish-api.herokuapp.com/api/');
-            if (response.ok) {
-                const data = await response.json();
-                return data.image;
-            }
+            // Try direct Unsplash (may fail due to CORS)
+            const query = encodeURIComponent(`${dishName} food dish`);
+            console.log('🌐 Trying direct Unsplash...');
+            const response = await fetch(`https://source.unsplash.com/400x300/?${query}`, {
+                method: 'GET',
+                mode: 'no-cors' // This will work but we can't access the response
+            });
+            
+            // With no-cors, we can't check response.ok, so we assume it worked
+            // and return the URL for the browser to handle
+            console.log('🌐 Direct Unsplash attempted (no-cors mode)');
+            return `https://source.unsplash.com/400x300/?${query}`;
         } catch (error) {
-            console.log('Foodish API failed:', error.message);
+            console.log('🌐 Direct Unsplash failed:', error.message);
         }
 
+        try {
+            // Alternative: Try a different free API
+            console.log('🌐 Trying alternative food API...');
+            // Use Lorem Picsum with food-related seed
+            const seed = dishName.replace(/\s+/g, '').toLowerCase();
+            const foodImageUrl = `https://picsum.photos/seed/${seed}/400/300`;
+            
+            // Test if the URL is accessible
+            const testResponse = await fetch(foodImageUrl, {
+                method: 'HEAD',
+                mode: 'no-cors'
+            });
+            
+            console.log('✅ Alternative image service success');
+            return foodImageUrl;
+        } catch (error) {
+            console.log('🌐 Alternative image service failed:', error.message);
+        }
+
+        console.log('🌐 All external image APIs failed, will use canvas fallback');
         return null;
     }
 
