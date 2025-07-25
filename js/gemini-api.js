@@ -3,7 +3,7 @@ class GeminiAPI {
     constructor() {
         this.apiKey = null;
         this.baseURL = 'https://generativelanguage.googleapis.com/v1beta';
-        this.model = 'gemini-pro';
+        this.model = 'gemini-1.5-flash';
         this.imageModel = 'imagen-3.0-generate-001';
         this.setupAPIKey();
     }

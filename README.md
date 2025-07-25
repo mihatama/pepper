@@ -179,33 +179,14 @@ pepper-craft-ai/
 For production deployment, set:
 - `GEMINI_API_KEY`: Your Google Gemini API key
 
-## 🤝 Contributing
+## 📞 サポート
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly on multiple devices
-5. Submit a pull request
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🙏 Acknowledgments
-
-- Google Gemini API for AI capabilities
-- Chart.js for beautiful radar charts
-- Web Speech API for voice features
-- The pepper and spice community for inspiration
-
-## 📞 Support
-
-For issues or questions:
-1. Check the browser console for error messages
-2. Ensure you have a stable internet connection for AI features
-3. Verify microphone permissions for voice input
-4. Try refreshing the page or clearing browser cache
+問題や質問がある場合：
+1. ブラウザのコンソールでエラーメッセージを確認
+2. AI機能には安定したインターネット接続が必要
+3. 音声入力にはマイクの許可が必要
+4. ページの更新やブラウザキャッシュのクリアを試す
 
 ---
 
-**Made with ❤️ for pepper enthusiasts worldwide**
+**ペッパー愛好家のために作成 🌶️**
